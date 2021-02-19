@@ -1,0 +1,22 @@
+syntax = "proto3";
+package product.service;
+
+option go_package = "github.com/jmurtozoev/test-task/proto";
+
+import "google/api/annotations.proto";
+import "product.proto";
+
+service ProductService {
+    // read products from csv file
+    rpc ReadProducts (ReadFromCsvRequest) returns (Nothing) {
+        option (google.api.http) = {
+          post: "/v1/products"
+          body: "*"
+        };
+    }
+
+    // list products
+    rpc ListProducts (Nothing) returns (ListProductsResponse){
+        option (google.api.http).get = "/v1/products";
+    }
+}
