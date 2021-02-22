@@ -9,5 +9,8 @@ proto-gen:
 run-server:
 	go run cmd/main.go
 
+run-gateway:
+	go run gateway/gateway.go
+
 migrate:  ## make sure you installed migrate
 	migrate -database ${POSTGRESQL_URL} -path db/migrations up
