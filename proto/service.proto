@@ -16,7 +16,7 @@ service ProductService {
     }
 
     // list products
-    rpc ListProducts (Nothing) returns (ListProductsResponse){
+    rpc ListProducts (ListProductsRequest) returns (ListProductsResponse){
         option (google.api.http).get = "/v1/products";
     }
 }

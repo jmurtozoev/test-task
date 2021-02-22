@@ -7,12 +7,12 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jmurtozoev/test-task/proto"
 	"google.golang.org/grpc"
-	"net/http"
+	"google.golang.org/protobuf/encoding/protojson"
 	"log"
+	"net/http"
 )
 
 var (
-	// command-line options:
 	// gRPC server endpoint
 	serverEndpoint = flag.String("grpc-server-endpoint", "localhost:8090", "gRPC server endpoint")
 )
@@ -22,7 +22,15 @@ func run() error {
 	defer cancel()
 
 	// Register gRPC server endpoint
-	mux := runtime.NewServeMux()
+	mux := runtime.NewServeMux(runtime.WithMarshalerOption("application/json", &runtime.JSONPb{
+		MarshalOptions: protojson.MarshalOptions{
+			UseProtoNames: false,
+		},
+		UnmarshalOptions: protojson.UnmarshalOptions{
+			DiscardUnknown: false,
+		},
+	}),
+	)
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}

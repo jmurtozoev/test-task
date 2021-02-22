@@ -21,7 +21,7 @@ type ProductServiceClient interface {
 	// read products from csv file
 	ReadProducts(ctx context.Context, in *ReadFromCsvRequest, opts ...grpc.CallOption) (*Nothing, error)
 	// list products
-	ListProducts(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*ListProductsResponse, error)
+	ListProducts(ctx context.Context, in *ListProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error)
 }
 
 type productServiceClient struct {
@@ -41,7 +41,7 @@ func (c *productServiceClient) ReadProducts(ctx context.Context, in *ReadFromCsv
 	return out, nil
 }
 
-func (c *productServiceClient) ListProducts(ctx context.Context, in *Nothing, opts ...grpc.CallOption) (*ListProductsResponse, error) {
+func (c *productServiceClient) ListProducts(ctx context.Context, in *ListProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error) {
 	out := new(ListProductsResponse)
 	err := c.cc.Invoke(ctx, "/product.service.ProductService/ListProducts", in, out, opts...)
 	if err != nil {
@@ -57,7 +57,7 @@ type ProductServiceServer interface {
 	// read products from csv file
 	ReadProducts(context.Context, *ReadFromCsvRequest) (*Nothing, error)
 	// list products
-	ListProducts(context.Context, *Nothing) (*ListProductsResponse, error)
+	ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error)
 	mustEmbedUnimplementedProductServiceServer()
 }
 
@@ -68,7 +68,7 @@ type UnimplementedProductServiceServer struct {
 func (UnimplementedProductServiceServer) ReadProducts(context.Context, *ReadFromCsvRequest) (*Nothing, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadProducts not implemented")
 }
-func (UnimplementedProductServiceServer) ListProducts(context.Context, *Nothing) (*ListProductsResponse, error) {
+func (UnimplementedProductServiceServer) ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListProducts not implemented")
 }
 func (UnimplementedProductServiceServer) mustEmbedUnimplementedProductServiceServer() {}
@@ -103,7 +103,7 @@ func _ProductService_ReadProducts_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _ProductService_ListProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Nothing)
+	in := new(ListProductsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func _ProductService_ListProducts_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: "/product.service.ProductService/ListProducts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductServiceServer).ListProducts(ctx, req.(*Nothing))
+		return srv.(ProductServiceServer).ListProducts(ctx, req.(*ListProductsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
