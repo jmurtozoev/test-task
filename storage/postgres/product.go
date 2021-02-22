@@ -34,6 +34,7 @@ func (r *productRepo) List(page, limit int, filters map[string]interface{}) ([]m
 
 	offset := (page - 1) * limit
 	var query = `SELECT id,
+						count(1) OVER(),
 						name,
 						price,
 						update_count
@@ -63,6 +64,7 @@ func (r *productRepo) List(page, limit int, filters map[string]interface{}) ([]m
 		var product models.Product
 		err = rows.Scan(
 			&product.ID,
+			&count,
 			&product.Name,
 			&product.Price,
 			&product.UpdateCount,
@@ -74,15 +76,9 @@ func (r *productRepo) List(page, limit int, filters map[string]interface{}) ([]m
 		products = append(products, product)
 	}
 
-	// get rows count
-	query = "SELECT COUNT(1) FROM products  %s "
-	query, varList, err = buildSearchQuery(query, filters, allowedFilters)
-	if err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, 0, err
 	}
-
-	row := r.db.QueryRow(query, varList...)
-	err = row.Scan(&count)
 
 	return products, count, err
 }
