@@ -19,9 +19,11 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProductServiceClient interface {
 	// read products from csv file
-	ReadProducts(ctx context.Context, in *ReadFromCsvRequest, opts ...grpc.CallOption) (*Nothing, error)
+	ReadProducts(ctx context.Context, in *ReadFromCsvRequest, opts ...grpc.CallOption) (*ReadFromCsvResponse, error)
 	// list products
 	ListProducts(ctx context.Context, in *ListProductsRequest, opts ...grpc.CallOption) (*ListProductsResponse, error)
+	// update product
+	UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*Product, error)
 }
 
 type productServiceClient struct {
@@ -32,8 +34,8 @@ func NewProductServiceClient(cc grpc.ClientConnInterface) ProductServiceClient {
 	return &productServiceClient{cc}
 }
 
-func (c *productServiceClient) ReadProducts(ctx context.Context, in *ReadFromCsvRequest, opts ...grpc.CallOption) (*Nothing, error) {
-	out := new(Nothing)
+func (c *productServiceClient) ReadProducts(ctx context.Context, in *ReadFromCsvRequest, opts ...grpc.CallOption) (*ReadFromCsvResponse, error) {
+	out := new(ReadFromCsvResponse)
 	err := c.cc.Invoke(ctx, "/product.service.ProductService/ReadProducts", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,14 +52,25 @@ func (c *productServiceClient) ListProducts(ctx context.Context, in *ListProduct
 	return out, nil
 }
 
+func (c *productServiceClient) UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*Product, error) {
+	out := new(Product)
+	err := c.cc.Invoke(ctx, "/product.service.ProductService/UpdateProduct", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductServiceServer is the server API for ProductService service.
 // All implementations must embed UnimplementedProductServiceServer
 // for forward compatibility
 type ProductServiceServer interface {
 	// read products from csv file
-	ReadProducts(context.Context, *ReadFromCsvRequest) (*Nothing, error)
+	ReadProducts(context.Context, *ReadFromCsvRequest) (*ReadFromCsvResponse, error)
 	// list products
 	ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error)
+	// update product
+	UpdateProduct(context.Context, *UpdateProductRequest) (*Product, error)
 	mustEmbedUnimplementedProductServiceServer()
 }
 
@@ -65,11 +78,14 @@ type ProductServiceServer interface {
 type UnimplementedProductServiceServer struct {
 }
 
-func (UnimplementedProductServiceServer) ReadProducts(context.Context, *ReadFromCsvRequest) (*Nothing, error) {
+func (UnimplementedProductServiceServer) ReadProducts(context.Context, *ReadFromCsvRequest) (*ReadFromCsvResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadProducts not implemented")
 }
 func (UnimplementedProductServiceServer) ListProducts(context.Context, *ListProductsRequest) (*ListProductsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListProducts not implemented")
+}
+func (UnimplementedProductServiceServer) UpdateProduct(context.Context, *UpdateProductRequest) (*Product, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateProduct not implemented")
 }
 func (UnimplementedProductServiceServer) mustEmbedUnimplementedProductServiceServer() {}
 
@@ -120,6 +136,24 @@ func _ProductService_ListProducts_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProductService_UpdateProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).UpdateProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/product.service.ProductService/UpdateProduct",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).UpdateProduct(ctx, req.(*UpdateProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProductService_ServiceDesc is the grpc.ServiceDesc for ProductService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +168,10 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListProducts",
 			Handler:    _ProductService_ListProducts_Handler,
+		},
+		{
+			MethodName: "UpdateProduct",
+			Handler:    _ProductService_UpdateProduct_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

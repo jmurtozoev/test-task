@@ -8,7 +8,7 @@ import "product.proto";
 
 service ProductService {
     // read products from csv file
-    rpc ReadProducts (ReadFromCsvRequest) returns (Nothing) {
+    rpc ReadProducts (ReadFromCsvRequest) returns (ReadFromCsvResponse) {
         option (google.api.http) = {
           post: "/v1/products"
           body: "*"
@@ -18,5 +18,13 @@ service ProductService {
     // list products
     rpc ListProducts (ListProductsRequest) returns (ListProductsResponse){
         option (google.api.http).get = "/v1/products";
+    }
+
+    // update product
+    rpc UpdateProduct (UpdateProductRequest) returns (Product) {
+        option (google.api.http) = {
+          put: "/v1/products/{id}"
+          body: "*"
+        };
     }
 }
